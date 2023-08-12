@@ -113,8 +113,6 @@ Section SetEquality.
 
   Hint Unfold eq : core.
 
-  (* Axiom eq_leibniz : forall A B, A == B -> A = B. *)
-
   Lemma eq_reflexive:
     forall (A : set U), A == A.
   Proof. auto. Qed.
@@ -274,3 +272,34 @@ Section SymmetricDifference.
   Qed.
 
 End SymmetricDifference.
+
+Section PowerSet.
+
+  Variable U : Type.
+
+  Inductive power_set (A : set U) : set (set U) :=
+  | power_set_intro : forall (X : set U),
+      X ⊆ A -> X ∈ (power_set A).
+
+  Notation "'P(' A ')'" := (power_set A) (at level 45).
+
+  Lemma empty_set_in_power_set:
+    forall (A : set U), ∅ ∈ P(A).
+  Proof.
+    intros. apply power_set_intro, subset_empty_set.
+  Qed.
+
+  Lemma self_in_power_set:
+    forall (A : set U), A ∈ P(A).
+  Proof.
+    intros. apply power_set_intro, subset_refl.
+  Qed.
+
+  Lemma power_set_monotonic:
+    forall (A B : set U), A ⊆ B -> P(A) ⊆ P(B).
+  Proof.
+    autounfold. intros. inv H0.
+    apply power_set_intro. eauto.
+  Qed.
+
+End PowerSet.
