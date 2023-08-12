@@ -4,10 +4,6 @@ Set Implicit Arguments.
 
 Ltac inv H := inversion H; subst.
 
-Lemma contraposition : forall P Q : Prop,
-  (P -> Q) -> (~Q -> ~P).
-Proof. intuition. Qed.
-
 Section Sets.
 
   Variable U : Type.
@@ -75,13 +71,13 @@ Infix "⋃" := union (left associativity, at level 45).
 Infix "\" := difference (left associativity, at level 43).
 Infix "△" := symmetric_difference (at level 45, left associativity).
 
-#[global] Hint Constructors intersection : core.
-#[global] Hint Constructors union : core.
-#[global] Hint Constructors difference : core.
-#[global] Hint Constructors complement : core.
+Global Hint Constructors intersection : core.
+Global Hint Constructors union : core.
+Global Hint Constructors difference : core.
+Global Hint Constructors complement : core.
 
-#[global] Hint Unfold subset : core.
-#[global] Hint Unfold symmetric_difference : core.
+Global Hint Unfold subset : core.
+Global Hint Unfold symmetric_difference : core.
 
 Section SubsetLemmas.
 
@@ -131,17 +127,22 @@ Section SetEquality.
     destruct H0 as [HBC HCB]; auto.
   Qed.
 
-End SetEquality.
+  Axiom set_extensionality: forall (A B : set U), A == B -> A = B.
 
-(* Now we can rewrite set equalities! *)
-#[global] Instance for_rewrite_lemma {U : Type}: Transitive (@eq U).
-Proof.
-  exact (@eq_transitive U).
-Qed.
+  (* Now we can rewrite set equalities! *)
+  Global Instance Equivalence_eq : Equivalence eq.
+  Proof.
+    split; autounfold.
+    - apply eq_reflexive.
+    - apply eq_symmetric.
+    - apply eq_transitive.
+  Qed.
+
+End SetEquality.
 
 Infix "==" := eq (at level 70).
 
-#[global] Hint Unfold eq : core.
+Global Hint Unfold eq : core.
 
 Section Basics.
 
