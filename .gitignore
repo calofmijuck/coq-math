@@ -1,3 +1,6 @@
+_CoqProject
+Makefile.conf
+
 .*.aux
 .*.d
 *.a
