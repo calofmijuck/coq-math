@@ -1,4 +1,4 @@
-Require Import Setoid.
+Require Import Morphisms Setoid.
 
 Set Implicit Arguments.
 
@@ -89,13 +89,8 @@ Section SubsetLemmas.
     autounfold. contradiction.
   Qed.
 
-  Lemma subset_refl:
-    forall (A : set U), A ⊆ A.
-  Proof. auto. Qed.
-
-  Lemma subset_trans:
-    forall (A B C : set U), A ⊆ B -> B ⊆ C -> A ⊆ C.
-  Proof. auto. Qed.
+  Global Instance subset_preorder: PreOrder (@subset U).
+  Proof. constructor; auto. Qed.
 
 End SubsetLemmas.
 
@@ -127,9 +122,6 @@ Section SetEquality.
     destruct H0 as [HBC HCB]; auto.
   Qed.
 
-  Axiom set_extensionality: forall (A B : set U), A == B -> A = B.
-
-  (* Now we can rewrite set equalities! *)
   Global Instance Equivalence_eq : Equivalence eq.
   Proof.
     split; autounfold.
@@ -137,6 +129,8 @@ Section SetEquality.
     - apply eq_symmetric.
     - apply eq_transitive.
   Qed.
+
+  Axiom set_extensionality: forall (A B : set U), A == B -> A = B.
 
 End SetEquality.
 
@@ -274,6 +268,49 @@ Section SymmetricDifference.
 
 End SymmetricDifference.
 
+Section Rewriting.
+
+  Variable U : Type.
+
+  Let eq := @eq U.
+
+  Global Instance intersection_compat:
+    Proper (eq ==> eq ==> eq) intersection.
+  Proof.
+    intros X Y H X' Y' H'. inv H; inv H'.
+    split; split; intros; destruct H4; eauto.
+  Qed.
+
+  Global Instance union_compat:
+    Proper (eq ==> eq ==> eq) union.
+  Proof.
+    intros X Y H X' Y' H'. inv H; inv H'.
+    split; intros x Hx; destruct Hx; eauto.
+  Qed.
+
+  Global Instance difference_compat:
+    Proper (eq ==> eq ==> eq) difference.
+  Proof.
+    intros X Y H X' Y' H'. inv H; inv H'.
+    split; intros x Hx; destruct Hx, H4;
+    apply difference_intro; split; eauto.
+  Qed.
+
+  Global Instance complement_compat:
+    Proper (eq ==> eq) complement.
+  Proof.
+    intros X Y H. inv H; split; intros x Hx; inv Hx; eauto.
+  Qed.
+
+  Global Instance symmetric_difference_compat:
+    Proper (eq ==> eq ==> eq) symmetric_difference.
+  Proof.
+    intros X Y H X' Y' H'. autounfold.
+    rewrite H, H'. reflexivity.
+  Qed.
+
+End Rewriting.
+
 Section PowerSet.
 
   Variable U : Type.
@@ -293,7 +330,7 @@ Section PowerSet.
   Lemma self_in_power_set:
     forall (A : set U), A ∈ P(A).
   Proof.
-    intros. apply power_set_intro, subset_refl.
+    intros. apply power_set_intro; auto.
   Qed.
 
   Lemma power_set_monotonic:
